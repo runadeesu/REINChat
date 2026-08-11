@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ProfileEditor } from "./profile-editor";
+import { NotificationSettings } from "./notification-settings";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -13,8 +14,9 @@ export default async function ProfilePage() {
   if (!profile) redirect("/login");
 
   return (
-    <div className="mx-auto w-full max-w-lg flex-1 overflow-y-auto p-4 md:p-8">
+    <div className="mx-auto w-full max-w-lg flex-1 overflow-y-auto p-4 md:p-8 space-y-6">
       <ProfileEditor profile={profile} email={user.email ?? ""} />
+      <NotificationSettings userId={user.id} />
     </div>
   );
 }

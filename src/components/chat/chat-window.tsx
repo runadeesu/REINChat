@@ -135,6 +135,23 @@ export function ChatWindow({
     typingTimeoutRef.current = setTimeout(() => broadcastTyping(false), 2000);
   }
 
+  function notifyOthers(preview: string) {
+    const recipientIds = memberState.filter((m) => m.userId !== currentUserId).map((m) => m.userId);
+    if (recipientIds.length === 0) return;
+    const senderName = memberState.find((m) => m.userId === currentUserId)?.profile?.display_name ?? conversation.name;
+    fetch("/api/push/send", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        recipientIds,
+        type: "messages",
+        title: conversation.type === "group" ? `${conversation.name}` : senderName,
+        body: conversation.type === "group" ? `${senderName}: ${preview}` : preview,
+        url: `/chats/${conversation.id}`,
+      }),
+    }).catch(() => {});
+  }
+
   async function handleSend() {
     const content = input.trim();
     if (!content) return;
@@ -145,6 +162,7 @@ export function ChatWindow({
     const result = await sendMessage({ conversationId: conversation.id, senderId: currentUserId, type: "text", content, replyToId });
     if (result.message) {
       setMessages((prev) => (prev.some((m) => m.id === result.message!.id) ? prev : [...prev, { ...result.message!, attachments: [], message_reactions: [] }]));
+      notifyOthers(content);
     }
   }
 
@@ -246,7 +264,10 @@ export function ChatWindow({
           <VoiceRecorder
             conversationId={conversation.id}
             senderId={currentUserId}
-            onSent={(message) => setMessages((prev) => [...prev, message])}
+            onSent={(message) => {
+              setMessages((prev) => [...prev, message]);
+              notifyOthers("🎤 ボイスメッセージ");
+            }}
           />
         )}
       </div>
@@ -256,7 +277,10 @@ export function ChatWindow({
           conversationId={conversation.id}
           senderId={currentUserId}
           onClose={() => setShowMediaPicker(false)}
-          onSent={(message) => setMessages((prev) => [...prev, message])}
+          onSent={(message) => {
+            setMessages((prev) => [...prev, message]);
+            notifyOthers(message.type === "image" ? "📷 画像" : message.type === "video" ? "🎬 動画" : "📎 ファイル");
+          }}
         />
       )}
       {showStickerPicker && (
@@ -264,7 +288,10 @@ export function ChatWindow({
           conversationId={conversation.id}
           senderId={currentUserId}
           onClose={() => setShowStickerPicker(false)}
-          onSent={(message) => setMessages((prev) => [...prev, message])}
+          onSent={(message) => {
+            setMessages((prev) => [...prev, message]);
+            notifyOthers("スタンプ");
+          }}
         />
       )}
     </div>

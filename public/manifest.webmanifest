@@ -1,0 +1,14 @@
+{
+  "name": "REINChat",
+  "short_name": "REINChat",
+  "description": "友達・家族・グループとつながるリアルタイムコミュニケーションサービス",
+  "start_url": "/chats",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0c1210",
+  "theme_color": "#0f9d78",
+  "icons": [
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "maskable" }
+  ]
+}

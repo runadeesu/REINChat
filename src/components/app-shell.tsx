@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { MessageCircle, Users, User, LogOut, Sun, Moon } from "lucide-react";
+import { MessageCircle, Users, User, LogOut, Sun, Moon, ShieldCheck } from "lucide-react";
 import { ReinChatLogo } from "@/components/brand/logo";
 import { useTheme } from "@/components/theme-provider";
 import { PresenceHeartbeat } from "@/components/presence-heartbeat";
 import { IncomingCallListener } from "@/components/incoming-call-listener";
+import { AnnouncementBanner } from "@/components/announcement-banner";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils/cn";
 import type { Profile } from "@/lib/supabase/database.types";
@@ -17,7 +18,15 @@ const NAV = [
   { href: "/profile", label: "プロフィール", icon: User },
 ];
 
-export function AppShell({ profile, children }: { profile: Profile | null; children: React.ReactNode }) {
+export function AppShell({
+  profile,
+  isAdmin = false,
+  children,
+}: {
+  profile: Profile | null;
+  isAdmin?: boolean;
+  children: React.ReactNode;
+}) {
   const pathname = usePathname();
   const router = useRouter();
   const { theme, toggleTheme } = useTheme();
@@ -58,6 +67,18 @@ export function AppShell({ profile, children }: { profile: Profile | null; child
             );
           })}
         </nav>
+        {isAdmin && (
+          <Link
+            href="/admin"
+            className={cn(
+              "mb-2 rounded-lg p-2",
+              pathname.startsWith("/admin") ? "text-[var(--primary)]" : "text-[var(--muted)] hover:bg-[var(--surface-hover)]"
+            )}
+            title="管理パネル"
+          >
+            <ShieldCheck size={18} />
+          </Link>
+        )}
         <button onClick={toggleTheme} className="mb-2 rounded-lg p-2 text-[var(--muted)] hover:bg-[var(--surface-hover)]" title="テーマ切替">
           {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
         </button>
@@ -66,7 +87,10 @@ export function AppShell({ profile, children }: { profile: Profile | null; child
         </button>
       </aside>
 
-      <main className="flex min-w-0 flex-1 flex-col pb-16 md:pb-0">{children}</main>
+      <main className="flex min-w-0 flex-1 flex-col pb-16 md:pb-0">
+        <AnnouncementBanner />
+        {children}
+      </main>
 
       {/* Mobile bottom nav */}
       <nav className="fixed inset-x-0 bottom-0 z-30 flex border-t border-[var(--border)] bg-[var(--surface)] md:hidden">

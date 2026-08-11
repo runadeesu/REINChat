@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { sendPushToUsers } from "@/lib/push/send-push";
 import type { CallType } from "@/lib/supabase/database.types";
 
 export async function getOrCreateActiveCall(conversationId: string, type: CallType) {
@@ -28,6 +29,17 @@ export async function getOrCreateActiveCall(conversationId: string, type: CallTy
       .single();
     if (error || !created) return { error: error?.message ?? "通話を開始できませんでした" };
     call = created;
+
+    const { data: myProfile } = await supabase.from("profiles").select("display_name").eq("id", user.id).single();
+    const { data: otherMembers } = await supabase.from("conversation_members").select("user_id").eq("conversation_id", conversationId).neq("user_id", user.id);
+    sendPushToUsers({
+      recipientIds: (otherMembers ?? []).map((m) => m.user_id),
+      excludeUserId: user.id,
+      type: "calls",
+      title: `${myProfile?.display_name ?? "誰か"} から着信`,
+      body: type === "video" ? "ビデオ通話" : "音声通話",
+      url: `/chats/${conversationId}/call?type=${type}`,
+    }).catch(() => {});
   }
 
   const { data: existingParticipant } = await supabase

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { sendPushToUsers } from "@/lib/push/send-push";
 
 async function requireUser() {
   const supabase = await createClient();
@@ -38,6 +39,16 @@ export async function sendFriendRequest(receiverId: string) {
   if (error) {
     return { error: error.code === "23505" ? "すでに申請済みです" : error.message };
   }
+
+  const { data: myProfile } = await supabase.from("profiles").select("display_name").eq("id", user.id).single();
+  sendPushToUsers({
+    recipientIds: [receiverId],
+    excludeUserId: user.id,
+    type: "friend_requests",
+    title: "友達申請",
+    body: `${myProfile?.display_name ?? "誰か"} から友達申請が届きました`,
+    url: "/friends",
+  }).catch(() => {});
 
   revalidatePath("/friends");
   return { ok: true };

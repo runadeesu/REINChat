@@ -10,6 +10,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (!user) redirect("/login");
 
   const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
+  const { data: isAdmin } = await supabase.rpc("is_admin", { uid: user.id });
 
   if (profile?.is_suspended) {
     return (
@@ -22,5 +23,9 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     );
   }
 
-  return <AppShell profile={profile}>{children}</AppShell>;
+  return (
+    <AppShell profile={profile} isAdmin={Boolean(isAdmin)}>
+      {children}
+    </AppShell>
+  );
 }
