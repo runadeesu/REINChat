@@ -6,6 +6,7 @@ import { MessageCircle, Users, User, LogOut, Sun, Moon } from "lucide-react";
 import { ReinChatLogo } from "@/components/brand/logo";
 import { useTheme } from "@/components/theme-provider";
 import { PresenceHeartbeat } from "@/components/presence-heartbeat";
+import { IncomingCallListener } from "@/components/incoming-call-listener";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils/cn";
 import type { Profile } from "@/lib/supabase/database.types";
@@ -31,6 +32,7 @@ export function AppShell({ profile, children }: { profile: Profile | null; child
   return (
     <div className="flex h-screen overflow-hidden">
       {profile && <PresenceHeartbeat userId={profile.id} />}
+      {profile && <IncomingCallListener userId={profile.id} />}
 
       {/* Desktop rail */}
       <aside className="hidden w-20 shrink-0 flex-col items-center border-r border-[var(--border)] bg-[var(--surface)] py-4 md:flex">
