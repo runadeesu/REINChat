@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Pin } from "lucide-react";
+import { Pin, UserPlus } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/utils/cn";
 import { formatDistanceToNowStrict } from "date-fns";
@@ -61,8 +61,11 @@ export function ConversationList({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="border-b border-[var(--border)] p-4">
+      <div className="flex items-center justify-between border-b border-[var(--border)] p-4">
         <h1 className="text-lg font-semibold">チャット</h1>
+        <Link href="/chats/new-group" className="rounded-lg p-1.5 text-[var(--muted)] hover:bg-[var(--surface-hover)]" title="グループを作成">
+          <UserPlus size={18} />
+        </Link>
       </div>
       <div className="flex-1 overflow-y-auto">
         {sorted.length === 0 && <p className="p-4 text-sm text-[var(--muted)]">チャットはまだありません。友達を追加してメッセージを送ってみましょう。</p>}
