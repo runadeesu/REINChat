@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { MessageCircle, Users, User, LogOut, Sun, Moon, ShieldCheck } from "lucide-react";
+import { MessageCircle, Users, User, LogOut, Sun, Moon, ShieldCheck, Sparkles } from "lucide-react";
 import { ReinChatLogo } from "@/components/brand/logo";
 import { useTheme } from "@/components/theme-provider";
 import { PresenceHeartbeat } from "@/components/presence-heartbeat";
@@ -79,6 +79,15 @@ export function AppShell({
             <ShieldCheck size={18} />
           </Link>
         )}
+        <a
+          href={process.env.NEXT_PUBLIC_REINAI_URL ?? "https://reinai-app.vercel.app"}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mb-2 rounded-lg p-2 text-[var(--muted)] hover:bg-[var(--surface-hover)]"
+          title="ReinAIを使う"
+        >
+          <Sparkles size={18} />
+        </a>
         <button onClick={toggleTheme} className="mb-2 rounded-lg p-2 text-[var(--muted)] hover:bg-[var(--surface-hover)]" title="テーマ切替">
           {theme === "dark" ? <Sun size={18} /> : <Moon size={18} />}
         </button>

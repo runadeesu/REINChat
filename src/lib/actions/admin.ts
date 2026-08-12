@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { reinAiUrl } from "@/lib/reinai/shared-secret";
 import type { Profile, Report, Announcement } from "@/lib/supabase/database.types";
 
 async function requireAdmin() {
@@ -126,8 +127,24 @@ export async function createAnnouncement(message: string) {
   const { error } = await supabase.from("announcements").insert({ message: trimmed, created_by: user.id, active: true });
   if (error) return { error: error.message };
 
+  relayAnnouncementToReinAi(trimmed);
+
   revalidatePath("/admin/announcements");
   return { ok: true };
+}
+
+// Fire-and-forget: also posts to ReinAI so its users see the same
+// announcement in their own banner. Best-effort — a relay failure doesn't
+// block the REINChat-side announcement from being created.
+function relayAnnouncementToReinAi(message: string) {
+  const secret = process.env.REINCHAT_SHARED_SECRET;
+  if (!secret) return;
+
+  fetch(`${reinAiUrl()}/api/reinchat/announcements`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "X-ReinChat-Secret": secret },
+    body: JSON.stringify({ message }),
+  }).catch(() => {});
 }
 
 export async function setAnnouncementActive(id: string, active: boolean) {
