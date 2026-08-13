@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ProfileEditor } from "./profile-editor";
 import { NotificationSettings } from "./notification-settings";
 import { ReinAiLinkSection } from "./reinai-link-section";
+import { DiscordLinkSection } from "./discord-link-section";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -19,6 +20,7 @@ export default async function ProfilePage() {
       <ProfileEditor profile={profile} email={user.email ?? ""} />
       <NotificationSettings userId={user.id} />
       <ReinAiLinkSection reinAiUrl={process.env.NEXT_PUBLIC_REINAI_URL ?? "https://reinai-app.vercel.app"} />
+      <DiscordLinkSection />
     </div>
   );
 }
