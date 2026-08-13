@@ -1,7 +1,11 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
-const PUBLIC_PATHS = ["/login", "/register", "/auth", "/forgot-password", "/reset-password"];
+// API routes handle their own auth in-route (session-based for user-facing
+// calls, shared-secret for server-to-server ones like the ReinAI
+// integration) — a login-page redirect would break both, so they're
+// excluded here rather than just being "public".
+const PUBLIC_PATHS = ["/login", "/register", "/auth", "/forgot-password", "/reset-password", "/api"];
 
 export async function updateSession(request: NextRequest) {
   let response = NextResponse.next({ request });
